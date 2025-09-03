@@ -137,6 +137,10 @@ st.markdown("""
         background: #f44336;
     }
 </style>
+
+
+
+
 """, unsafe_allow_html=True)
 
 # Load data
