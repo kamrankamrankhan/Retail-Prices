@@ -18,129 +18,192 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS styling
+# Custom CSS styling with enhanced background colors
 st.markdown("""
 <style>
+    /* Main background styling */
+    .main {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem;
+        min-height: 100vh;
+    }
+    
+    .stApp {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    /* Sidebar background */
+    .css-1d391kg {
+        background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+    }
+    
     .main-header {
         background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-        padding: 1rem;
-        border-radius: 10px;
+        padding: 1.5rem;
+        border-radius: 15px;
         margin-bottom: 2rem;
         text-align: center;
         color: white;
         font-size: 2.5rem;
         font-weight: bold;
         text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
     }
     
     .top-nav {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        margin-bottom: 1rem;
+        padding: 0.8rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
         color: white;
         font-weight: bold;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
     }
     
     .nav-item {
         background: rgba(255,255,255,0.2);
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
         cursor: pointer;
         transition: all 0.3s ease;
+        border: 1px solid rgba(255,255,255,0.1);
     }
     
     .nav-item:hover {
         background: rgba(255,255,255,0.3);
         transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
     
     .sidebar-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 1rem;
+        padding: 1.2rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
         text-align: center;
         color: white;
         font-weight: bold;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
     }
     
     .sidebar-section {
-        background: rgba(102, 126, 234, 0.1);
-        padding: 1rem;
-        border-radius: 8px;
+        background: rgba(255,255,255,0.95);
+        padding: 1.2rem;
+        border-radius: 12px;
         margin: 1rem 0;
-        border-left: 4px solid #667eea;
+        border-left: 5px solid #667eea;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .filter-section {
+        background: rgba(255,255,255,0.95);
+        padding: 1.2rem;
+        border-radius: 12px;
+        margin: 1rem 0;
+        border-left: 5px solid #f093fb;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
     }
     
     .metric-card {
         background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        padding: 1rem;
-        border-radius: 10px;
+        padding: 1.2rem;
+        border-radius: 12px;
         color: white;
         text-align: center;
         margin: 1rem 0;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
     }
     
     .chart-container {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        margin: 1rem 0;
+        background: rgba(255,255,255,0.95);
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        margin: 1.5rem 0;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
     }
     
     .stSelectbox > div > div {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     
     .stButton > button {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         border: none;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        padding: 0.8rem 1.5rem;
         font-weight: bold;
         transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
     
     .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-    
-    .filter-section {
-        background: rgba(240, 147, 251, 0.1);
-        padding: 1rem;
-        border-radius: 8px;
-        margin: 1rem 0;
-        border-left: 4px solid #f093fb;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
     }
     
     .status-indicator {
         display: inline-block;
-        width: 10px;
-        height: 10px;
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
-        margin-right: 8px;
+        margin-right: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
     
     .status-active {
-        background: #4CAF50;
+        background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
     }
     
     .status-inactive {
-        background: #f44336;
+        background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    }
+    
+    /* Enhanced metric styling */
+    .stMetric {
+        background: rgba(255,255,255,0.9);
+        padding: 1rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    /* Slider styling */
+    .stSlider > div > div > div > div {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    /* Header styling */
+    h1, h2, h3 {
+        color: #2c3e50;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    /* Text styling */
+    .stMarkdown {
+        color: #34495e;
     }
 </style>
-
-
-
-
 """, unsafe_allow_html=True)
 
 # Load data
@@ -150,9 +213,9 @@ data = pd.read_csv('retail_price.csv')
 st.markdown("""
 <div class="top-nav">
     <div style="display: flex; align-items: center;">
-        <span style="font-size: 1.2rem;">📊 Retail Analytics</span>
+        <span style="font-size: 1.3rem;">📊 Retail Analytics</span>
     </div>
-    <div style="display: flex; gap: 1rem;">
+    <div style="display: flex; gap: 1.2rem;">
         <div class="nav-item">📈 Dashboard</div>
         <div class="nav-item">📊 Reports</div>
         <div class="nav-item">⚙️ Settings</div>
@@ -272,8 +335,8 @@ if selected_chart == 'Histogram':
     fig.update_layout(
         title_font_size=20,
         title_font_color='#333',
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)'
+        plot_bgcolor='rgba(255,255,255,0.9)',
+        paper_bgcolor='rgba(255,255,255,0.9)'
     )
     st.plotly_chart(fig, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
@@ -285,8 +348,8 @@ elif selected_chart == 'Box Plot':
     fig.update_layout(
         title_font_size=20,
         title_font_color='#333',
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)'
+        plot_bgcolor='rgba(255,255,255,0.9)',
+        paper_bgcolor='rgba(255,255,255,0.9)'
     )
     st.plotly_chart(fig, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
@@ -299,8 +362,8 @@ elif selected_chart == 'Scatter Plot':
     fig.update_layout(
         title_font_size=20,
         title_font_color='#333',
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)'
+        plot_bgcolor='rgba(255,255,255,0.9)',
+        paper_bgcolor='rgba(255,255,255,0.9)'
     )
     st.plotly_chart(fig, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
@@ -314,8 +377,8 @@ elif selected_chart == 'Bar Chart':
     fig.update_layout(
         title_font_size=20,
         title_font_color='#333',
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(255,255,255,0.9)',
+        paper_bgcolor='rgba(255,255,255,0.9)',
         xaxis_tickangle=-45
     )
     st.plotly_chart(fig, use_container_width=True)
@@ -336,8 +399,8 @@ elif selected_chart == 'Correlation Heatmap':
     fig.update_layout(
         title_font_size=20,
         title_font_color='#333',
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)'
+        plot_bgcolor='rgba(255,255,255,0.9)',
+        paper_bgcolor='rgba(255,255,255,0.9)'
     )
     st.plotly_chart(fig, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
@@ -353,8 +416,8 @@ elif selected_chart == 'Bar Chart - Price Difference':
     fig.update_layout(
         title_font_size=20,
         title_font_color='#333',
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(255,255,255,0.9)',
+        paper_bgcolor='rgba(255,255,255,0.9)',
         xaxis_tickangle=-45
     )
     st.plotly_chart(fig, use_container_width=True)
@@ -396,8 +459,8 @@ if model_button:
             yaxis_title='Predicted Retail Price',
             title_font_size=20,
             title_font_color='#333',
-            plot_bgcolor='rgba(0,0,0,0)',
-            paper_bgcolor='rgba(0,0,0,0)'
+            plot_bgcolor='rgba(255,255,255,0.9)',
+            paper_bgcolor='rgba(255,255,255,0.9)'
         )
         st.plotly_chart(fig, use_container_width=True)
         
