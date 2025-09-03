@@ -6,6 +6,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_squared_error
 
+# Set page config for better appearance
+st.set_page_config(
+    page_title="Retail Price Analysis Dashboard",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 # Set Plotly template to white background
 import plotly.io as pio
 pio.templates.default = "plotly_white"
@@ -13,11 +21,56 @@ pio.templates.default = "plotly_white"
 # Load data
 data = pd.read_csv('retail_price.csv')
 
-# Streamlit app
-st.title('Retail Price Analysis App')
+# Modern Header with CSS styling
+st.markdown("""
+<style>
+    .main-header {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        text-align: center;
+        color: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .main-header h1 {
+        font-size: 3rem;
+        font-weight: bold;
+        margin: 0;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    .main-header p {
+        font-size: 1.2rem;
+        margin: 0.5rem 0 0 0;
+        opacity: 0.9;
+    }
+    .sidebar-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 1rem;
+        border-radius: 8px;
+        color: white;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+</style>
+""", unsafe_allow_html=True)
 
-# Sidebar
-st.sidebar.header('Visualization Options')
+# Modern Header
+st.markdown("""
+<div class="main-header">
+    <h1>📊 Retail Price Analysis Dashboard</h1>
+    <p>🔍 Explore retail pricing patterns and train predictive models</p>
+</div>
+""", unsafe_allow_html=True)
+
+# Sidebar with modern styling
+st.sidebar.markdown("""
+<div class="sidebar-header">
+    <h3>🎯 Analysis Tools</h3>
+</div>
+""", unsafe_allow_html=True)
+
+st.sidebar.header('📈 Visualization Options')
 chart_options = ['Histogram', 'Box Plot', 'Scatter Plot', 'Bar Chart', 'Correlation Heatmap', 'Bar Chart - Price Difference']
 selected_chart = st.sidebar.selectbox('Select a visualization:', chart_options)
 
