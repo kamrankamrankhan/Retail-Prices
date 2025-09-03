@@ -33,6 +33,31 @@ st.markdown("""
         text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
     
+    .top-nav {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .nav-item {
+        background: rgba(255,255,255,0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-item:hover {
+        background: rgba(255,255,255,0.3);
+        transform: translateY(-2px);
+    }
+    
     .sidebar-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         padding: 1rem;
@@ -41,6 +66,14 @@ st.markdown("""
         text-align: center;
         color: white;
         font-weight: bold;
+    }
+    
+    .sidebar-section {
+        background: rgba(102, 126, 234, 0.1);
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 1rem 0;
+        border-left: 4px solid #667eea;
     }
     
     .metric-card {
@@ -79,45 +112,159 @@ st.markdown("""
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
+    
+    .filter-section {
+        background: rgba(240, 147, 251, 0.1);
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 1rem 0;
+        border-left: 4px solid #f093fb;
+    }
+    
+    .status-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+    
+    .status-active {
+        background: #4CAF50;
+    }
+    
+    .status-inactive {
+        background: #f44336;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # Load data
 data = pd.read_csv('retail_price.csv')
 
+# Top navigation bar
+st.markdown("""
+<div class="top-nav">
+    <div style="display: flex; align-items: center;">
+        <span style="font-size: 1.2rem;">📊 Retail Analytics</span>
+    </div>
+    <div style="display: flex; gap: 1rem;">
+        <div class="nav-item">📈 Dashboard</div>
+        <div class="nav-item">📊 Reports</div>
+        <div class="nav-item">⚙️ Settings</div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
 # Main header with enhanced styling
 st.markdown('<div class="main-header">📊 Retail Price Analytics Dashboard</div>', unsafe_allow_html=True)
 
-# Enhanced sidebar with better styling
+# Enhanced sidebar with better styling and organization
 with st.sidebar:
-    st.markdown('<div class="sidebar-header">🎯 Analysis Options</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sidebar-header">🎯 Analysis Control Panel</div>', unsafe_allow_html=True)
+    
+    # Data Overview Section
+    st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
+    st.markdown("**📊 Data Overview**")
+    total_products = len(data)
+    avg_price = data['total_price'].mean()
+    max_price = data['total_price'].max()
+    min_price = data['total_price'].min()
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Total Products", f"{total_products:,}")
+        st.metric("Max Price", f"${max_price:.2f}")
+    with col2:
+        st.metric("Avg Price", f"${avg_price:.2f}")
+        st.metric("Min Price", f"${min_price:.2f}")
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Filter Section
+    st.markdown('<div class="filter-section">', unsafe_allow_html=True)
+    st.markdown("**🔍 Data Filters**")
+    
+    # Price range filter
+    price_range = st.slider(
+        "Price Range ($)",
+        min_value=float(data['total_price'].min()),
+        max_value=float(data['total_price'].max()),
+        value=(float(data['total_price'].min()), float(data['total_price'].max())),
+        key='price_filter'
+    )
+    
+    # Category filter
+    categories = ['All'] + list(data['product_category_name'].unique())
+    selected_category = st.selectbox('Product Category', categories, key='category_filter')
+    
+    # Quantity filter
+    qty_range = st.slider(
+        "Quantity Range",
+        min_value=int(data['qty'].min()),
+        max_value=int(data['qty'].max()),
+        value=(int(data['qty'].min()), int(data['qty'].max())),
+        key='qty_filter'
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
     
     # Visualization section
+    st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
     st.markdown("**📈 Visualization Options**")
     chart_options = ['Histogram', 'Box Plot', 'Scatter Plot', 'Bar Chart', 'Correlation Heatmap', 'Bar Chart - Price Difference']
     selected_chart = st.selectbox('Select a visualization:', chart_options, key='chart_selector')
     
-    st.markdown("---")
+    # Chart customization options
+    if selected_chart in ['Histogram', 'Box Plot', 'Bar Chart']:
+        color_theme = st.selectbox('Color Theme', ['Blue', 'Purple', 'Pink', 'Green'], key='color_theme')
+    st.markdown('</div>', unsafe_allow_html=True)
     
     # Modeling section
+    st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
     st.markdown("**🤖 Modeling Options**")
+    
+    # Model parameters
+    test_size = st.slider('Test Size (%)', 10, 50, 20, key='test_size')
+    random_state = st.slider('Random State', 1, 100, 42, key='random_state')
+    
     model_button = st.button('🚀 Train Decision Tree Model', key='model_button')
+    st.markdown('</div>', unsafe_allow_html=True)
     
-    st.markdown("---")
-    
-    # Data insights section
-    st.markdown("**📊 Quick Insights**")
-    total_products = len(data)
-    avg_price = data['total_price'].mean()
-    st.metric("Total Products", f"{total_products:,}")
-    st.metric("Avg Price", f"${avg_price:.2f}")
+    # System Status
+    st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
+    st.markdown("**🔧 System Status**")
+    st.markdown('<span class="status-indicator status-active"></span>Data Loaded', unsafe_allow_html=True)
+    st.markdown('<span class="status-indicator status-active"></span>Model Ready', unsafe_allow_html=True)
+    st.markdown('<span class="status-indicator status-active"></span>Charts Active', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# Apply filters to data
+filtered_data = data.copy()
+filtered_data = filtered_data[
+    (filtered_data['total_price'] >= price_range[0]) &
+    (filtered_data['total_price'] <= price_range[1]) &
+    (filtered_data['qty'] >= qty_range[0]) &
+    (filtered_data['qty'] <= qty_range[1])
+]
+
+if selected_category != 'All':
+    filtered_data = filtered_data[filtered_data['product_category_name'] == selected_category]
+
+# Color mapping
+color_map = {
+    'Blue': '#667eea',
+    'Purple': '#764ba2', 
+    'Pink': '#f093fb',
+    'Green': '#4CAF50'
+}
+
+selected_color = color_map.get(color_theme, '#667eea') if 'color_theme' in locals() else '#667eea'
 
 # Main content area
 if selected_chart == 'Histogram':
     st.markdown('<div class="chart-container">', unsafe_allow_html=True)
     st.header('📊 Distribution of Total Price')
-    fig = px.histogram(data, x='total_price', nbins=20, 
-                      color_discrete_sequence=['#667eea'])
+    fig = px.histogram(filtered_data, x='total_price', nbins=20, 
+                      color_discrete_sequence=[selected_color])
     fig.update_layout(
         title_font_size=20,
         title_font_color='#333',
@@ -130,7 +277,7 @@ if selected_chart == 'Histogram':
 elif selected_chart == 'Box Plot':
     st.markdown('<div class="chart-container">', unsafe_allow_html=True)
     st.header('📦 Box Plot of Unit Price')
-    fig = px.box(data, y='unit_price', color_discrete_sequence=['#764ba2'])
+    fig = px.box(filtered_data, y='unit_price', color_discrete_sequence=[selected_color])
     fig.update_layout(
         title_font_size=20,
         title_font_color='#333',
@@ -143,8 +290,8 @@ elif selected_chart == 'Box Plot':
 elif selected_chart == 'Scatter Plot':
     st.markdown('<div class="chart-container">', unsafe_allow_html=True)
     st.header('📈 Quantity vs Total Price with Trendline')
-    fig = px.scatter(data, x='qty', y='total_price', trendline='ols',
-                    color_discrete_sequence=['#667eea'])
+    fig = px.scatter(filtered_data, x='qty', y='total_price', trendline='ols',
+                    color_discrete_sequence=[selected_color])
     fig.update_layout(
         title_font_size=20,
         title_font_color='#333',
@@ -157,9 +304,9 @@ elif selected_chart == 'Scatter Plot':
 elif selected_chart == 'Bar Chart':
     st.markdown('<div class="chart-container">', unsafe_allow_html=True)
     st.header('📊 Average Total Price by Product Category')
-    avg_price_by_category = data.groupby('product_category_name')['total_price'].mean().reset_index()
+    avg_price_by_category = filtered_data.groupby('product_category_name')['total_price'].mean().reset_index()
     fig = px.bar(avg_price_by_category, x='product_category_name', y='total_price',
-                color_discrete_sequence=['#764ba2'])
+                color_discrete_sequence=[selected_color])
     fig.update_layout(
         title_font_size=20,
         title_font_color='#333',
@@ -173,8 +320,8 @@ elif selected_chart == 'Bar Chart':
 elif selected_chart == 'Correlation Heatmap':
     st.markdown('<div class="chart-container">', unsafe_allow_html=True)
     st.header('🔥 Correlation Heatmap of Numerical Features')
-    numeric_columns = data.select_dtypes(include=['float64', 'int64']).columns
-    correlation_matrix = data[numeric_columns].corr()
+    numeric_columns = filtered_data.select_dtypes(include=['float64', 'int64']).columns
+    correlation_matrix = filtered_data[numeric_columns].corr()
 
     fig = go.Figure(go.Heatmap(
         x=correlation_matrix.columns, 
@@ -194,9 +341,9 @@ elif selected_chart == 'Correlation Heatmap':
 elif selected_chart == 'Bar Chart - Price Difference':
     st.markdown('<div class="chart-container">', unsafe_allow_html=True)
     st.header('💰 Average Competitor Price Difference by Product Category')
-    data['comp_price_diff'] = data['unit_price'] - data['comp_1']
+    filtered_data['comp_price_diff'] = filtered_data['unit_price'] - filtered_data['comp_1']
 
-    avg_price_diff_by_category = data.groupby('product_category_name')['comp_price_diff'].mean().reset_index()
+    avg_price_diff_by_category = filtered_data.groupby('product_category_name')['comp_price_diff'].mean().reset_index()
     fig = px.bar(avg_price_diff_by_category, x='product_category_name', y='comp_price_diff',
                 color_discrete_sequence=['#f093fb'])
     fig.update_layout(
@@ -215,11 +362,11 @@ if model_button:
     st.header('🤖 Predicted vs Actual Retail Price')
     
     with st.spinner('Training model...'):
-        data['comp_price_diff'] = data['unit_price'] - data['comp_1']
+        filtered_data['comp_price_diff'] = filtered_data['unit_price'] - filtered_data['comp_1']
         
-        X = data[['qty', 'unit_price', 'comp_1', 'product_score', 'comp_price_diff']]
-        y = data['total_price']
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        X = filtered_data[['qty', 'unit_price', 'comp_1', 'product_score', 'comp_price_diff']]
+        y = filtered_data['total_price']
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size/100, random_state=random_state)
         
         model = DecisionTreeRegressor()
         model.fit(X_train, y_train)
@@ -252,5 +399,14 @@ if model_button:
         
         mse = mean_squared_error(y_test, y_pred)
         st.markdown(f'<div class="metric-card">Mean Squared Error: {mse:.2f}</div>', unsafe_allow_html=True)
+        
+        # Model performance metrics
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Training Samples", len(X_train))
+        with col2:
+            st.metric("Test Samples", len(X_test))
+        with col3:
+            st.metric("Features Used", len(X.columns))
     st.markdown('</div>', unsafe_allow_html=True)
 
