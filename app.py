@@ -17,6 +17,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+
 # Set Plotly template to white background
 import plotly.io as pio
 pio.templates.default = "plotly_white"
