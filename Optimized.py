@@ -28,6 +28,10 @@ chart_options = {
 }
 selected_chart = st.sidebar.selectbox('Select a visualization:', list(chart_options.keys()))
 
+
+
+
+
 # Visualization
 st.header(chart_options[selected_chart])
 if selected_chart == 'Histogram':
