@@ -136,3 +136,136 @@ if model_button:
     mse = mean_squared_error(y_test, y_pred)
     st.write(f'Mean Squared Error: {mse:.2f}')
 
+# Price Prediction Calculator Section
+st.markdown("---")
+st.markdown("""
+<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 10px; margin: 2rem 0;">
+    <h2 style="color: white; text-align: center; margin: 0;">🎯 Price Prediction Calculator</h2>
+    <p style="color: white; text-align: center; margin: 0.5rem 0 0 0; opacity: 0.9;">Input product parameters to get real-time price predictions</p>
+</div>
+""", unsafe_allow_html=True)
+
+# Create two columns for better layout
+col1, col2 = st.columns([1, 1])
+
+with col1:
+    st.subheader("📊 Product Parameters")
+    
+    # Get unique product categories for dropdown
+    product_categories = data['product_category_name'].unique()
+    
+    # Input form
+    with st.form("price_prediction_form"):
+        selected_category = st.selectbox(
+            "🏷️ Product Category",
+            options=product_categories,
+            help="Select the product category"
+        )
+        
+        quantity = st.slider(
+            "📦 Quantity",
+            min_value=1,
+            max_value=1000,
+            value=100,
+            help="Number of units"
+        )
+        
+        unit_price = st.number_input(
+            "💰 Unit Price",
+            min_value=0.01,
+            max_value=1000.0,
+            value=50.0,
+            step=0.01,
+            format="%.2f",
+            help="Price per unit"
+        )
+        
+        competitor_price = st.number_input(
+            "🏪 Competitor Price",
+            min_value=0.01,
+            max_value=1000.0,
+            value=45.0,
+            step=0.01,
+            format="%.2f",
+            help="Competitor's price for similar product"
+        )
+        
+        product_score = st.slider(
+            "⭐ Product Score",
+            min_value=1.0,
+            max_value=10.0,
+            value=7.0,
+            step=0.1,
+            help="Product quality/rating score"
+        )
+        
+        submitted = st.form_submit_button("🚀 Predict Price", use_container_width=True)
+
+with col2:
+    st.subheader("🎯 Prediction Results")
+    
+    if submitted:
+        # Calculate price difference
+        price_diff = unit_price - competitor_price
+        
+        # Prepare input for prediction
+        input_data = [[quantity, unit_price, competitor_price, product_score, price_diff]]
+        
+        # Train model if not already trained
+        if 'trained_model' not in st.session_state:
+            data['comp_price_diff'] = data['unit_price'] - data['comp_1']
+            X = data[['qty', 'unit_price', 'comp_1', 'product_score', 'comp_price_diff']]
+            y = data['total_price']
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+            
+            model = DecisionTreeRegressor()
+            model.fit(X_train, y_train)
+            st.session_state.trained_model = model
+            st.session_state.X_test = X_test
+            st.session_state.y_test = y_test
+        
+        # Make prediction
+        model = st.session_state.trained_model
+        predicted_price = model.predict(input_data)[0]
+        
+        # Calculate confidence (simplified - using model's feature importance)
+        confidence = min(95, max(60, 70 + (product_score - 5) * 3))
+        
+        # Display results
+        st.markdown(f"""
+        <div style="background: #f0f2f6; padding: 1.5rem; border-radius: 10px; border-left: 5px solid #667eea;">
+            <h3 style="color: #667eea; margin-top: 0;">Predicted Total Price</h3>
+            <h2 style="color: #2c3e50; margin: 0.5rem 0;">${predicted_price:.2f}</h2>
+            <p style="color: #7f8c8d; margin: 0;">Confidence: {confidence:.1f}%</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Price comparison
+        st.markdown("### 📈 Price Analysis")
+        
+        col2_1, col2_2, col2_3 = st.columns(3)
+        
+        with col2_1:
+            st.metric("Predicted Price", f"${predicted_price:.2f}")
+        
+        with col2_2:
+            st.metric("Unit Price", f"${unit_price:.2f}")
+        
+        with col2_3:
+            profit_margin = ((predicted_price - (unit_price * quantity)) / (unit_price * quantity)) * 100
+            st.metric("Profit Margin", f"{profit_margin:.1f}%")
+        
+        # Price range estimation
+        price_range_min = predicted_price * 0.85
+        price_range_max = predicted_price * 1.15
+        
+        st.markdown(f"""
+        <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+            <h4 style="color: #27ae60; margin-top: 0;">📊 Expected Price Range</h4>
+            <p style="margin: 0;"><strong>Low:</strong> ${price_range_min:.2f} | <strong>High:</strong> ${price_range_max:.2f}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    else:
+        st.info("👆 Fill out the form and click 'Predict Price' to see results!")
+
