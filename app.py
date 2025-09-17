@@ -18,6 +18,9 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+
+
+
 # Custom CSS styling with enhanced background colors
 st.markdown("""
 <style>
