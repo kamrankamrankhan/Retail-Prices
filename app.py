@@ -18,14 +18,6 @@ st.set_page_config(
 import plotly.io as pio
 pio.templates.default = "plotly_white"
 
-# Custom CSS for better styling
-st.set_page_config(
-    page_title="Retail Price Analytics Dashboard",
-    page_icon="📊",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
 # Custom CSS styling with enhanced background colors
 st.markdown("""
 <style>
