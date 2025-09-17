@@ -32,6 +32,8 @@ selected_chart = st.sidebar.selectbox('Select a visualization:', list(chart_opti
 
 
 
+
+
 # Visualization
 st.header(chart_options[selected_chart])
 if selected_chart == 'Histogram':
