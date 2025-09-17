@@ -5,6 +5,9 @@ import plotly.graph_objects as go
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_squared_error
+import numpy as np
+from datetime import datetime, timedelta
+import io
 
 # Set page config for better appearance
 st.set_page_config(
@@ -609,4 +612,275 @@ with col2:
     
     else:
         st.info("👆 Fill out the form and click 'Predict Price' to see results!")
+
+# Advanced Analytics Dashboard Section
+st.markdown("---")
+st.markdown("""
+<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 10px; margin: 2rem 0;">
+    <h2 style="color: white; text-align: center; margin: 0;">📊 Advanced Analytics Dashboard</h2>
+    <p style="color: white; text-align: center; margin: 0.5rem 0 0 0; opacity: 0.9;">Deep dive into retail performance metrics and market insights</p>
+</div>
+""", unsafe_allow_html=True)
+
+# Create tabs for different analytics sections
+tab1, tab2, tab3, tab4 = st.tabs(["📈 KPI Dashboard", "🎯 Market Analysis", "📋 Export Tools", "🔍 Data Explorer"])
+
+with tab1:
+    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+    st.header("📈 Key Performance Indicators")
+    
+    # Calculate KPIs
+    total_revenue = filtered_data['total_price'].sum()
+    avg_order_value = filtered_data['total_price'].mean()
+    total_products = len(filtered_data)
+    avg_quantity = filtered_data['qty'].mean()
+    
+    # Create KPI cards
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric(
+            label="💰 Total Revenue",
+            value=f"${total_revenue:,.2f}",
+            delta=f"{len(filtered_data)} orders"
+        )
+    
+    with col2:
+        st.metric(
+            label="📊 Avg Order Value",
+            value=f"${avg_order_value:.2f}",
+            delta=f"{avg_quantity:.1f} avg qty"
+        )
+    
+    with col3:
+        st.metric(
+            label="📦 Total Products",
+            value=f"{total_products:,}",
+            delta=f"{len(filtered_data['product_category_name'].unique())} categories"
+        )
+    
+    with col4:
+        price_variance = filtered_data['total_price'].std()
+        st.metric(
+            label="📈 Price Variance",
+            value=f"${price_variance:.2f}",
+            delta=f"±{price_variance/avg_order_value*100:.1f}%"
+        )
+    
+    # Revenue by Category Chart
+    st.subheader("💰 Revenue Distribution by Category")
+    revenue_by_category = filtered_data.groupby('product_category_name')['total_price'].sum().reset_index()
+    revenue_by_category = revenue_by_category.sort_values('total_price', ascending=False)
+    
+    fig_revenue = px.pie(
+        revenue_by_category, 
+        values='total_price', 
+        names='product_category_name',
+        title="Revenue Distribution",
+        color_discrete_sequence=px.colors.qualitative.Set3
+    )
+    fig_revenue.update_layout(
+        title_font_size=16,
+        title_font_color='#333',
+        plot_bgcolor='rgba(255,255,255,0.9)',
+        paper_bgcolor='rgba(255,255,255,0.9)'
+    )
+    st.plotly_chart(fig_revenue, use_container_width=True)
+    
+    # Top Performing Products
+    st.subheader("🏆 Top 10 Products by Revenue")
+    top_products = filtered_data.nlargest(10, 'total_price')[['product_category_name', 'qty', 'unit_price', 'total_price']]
+    st.dataframe(top_products, use_container_width=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with tab2:
+    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+    st.header("🎯 Market Analysis & Segmentation")
+    
+    # Market Share Analysis
+    st.subheader("📊 Market Share by Product Category")
+    market_share = filtered_data.groupby('product_category_name').agg({
+        'total_price': ['sum', 'count', 'mean'],
+        'qty': 'sum'
+    }).round(2)
+    
+    market_share.columns = ['Total Revenue', 'Order Count', 'Avg Price', 'Total Quantity']
+    market_share['Market Share %'] = (market_share['Total Revenue'] / market_share['Total Revenue'].sum() * 100).round(2)
+    market_share = market_share.sort_values('Market Share %', ascending=False)
+    
+    st.dataframe(market_share, use_container_width=True)
+    
+    # Price Elasticity Analysis
+    st.subheader("📈 Price vs Quantity Analysis")
+    fig_elasticity = px.scatter(
+        filtered_data, 
+        x='unit_price', 
+        y='qty', 
+        size='total_price',
+        color='product_category_name',
+        hover_data=['product_score'],
+        title="Price Elasticity Analysis"
+    )
+    fig_elasticity.update_layout(
+        title_font_size=16,
+        title_font_color='#333',
+        plot_bgcolor='rgba(255,255,255,0.9)',
+        paper_bgcolor='rgba(255,255,255,0.9)'
+    )
+    st.plotly_chart(fig_elasticity, use_container_width=True)
+    
+    # Competitor Analysis
+    st.subheader("🏪 Competitor Price Analysis")
+    competitor_analysis = filtered_data.groupby('product_category_name').agg({
+        'unit_price': 'mean',
+        'comp_1': 'mean',
+        'comp_2': 'mean',
+        'comp_3': 'mean'
+    }).round(2)
+    
+    competitor_analysis['Price Advantage'] = competitor_analysis['unit_price'] - competitor_analysis['comp_1']
+    competitor_analysis['Competitive Position'] = competitor_analysis['Price Advantage'].apply(
+        lambda x: 'Premium' if x > 0 else 'Budget' if x < -5 else 'Competitive'
+    )
+    
+    st.dataframe(competitor_analysis, use_container_width=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with tab3:
+    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+    st.header("📋 Export & Reporting Tools")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("📊 Export Filtered Data")
+        
+        # Export options
+        export_format = st.selectbox("Export Format", ["CSV", "Excel", "JSON"])
+        
+        if st.button("📥 Download Filtered Data", key="export_filtered"):
+            if export_format == "CSV":
+                csv = filtered_data.to_csv(index=False)
+                st.download_button(
+                    label="Download CSV",
+                    data=csv,
+                    file_name=f"retail_data_filtered_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                    mime="text/csv"
+                )
+            elif export_format == "Excel":
+                output = io.BytesIO()
+                with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                    filtered_data.to_excel(writer, sheet_name='Retail Data', index=False)
+                st.download_button(
+                    label="Download Excel",
+                    data=output.getvalue(),
+                    file_name=f"retail_data_filtered_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
+            elif export_format == "JSON":
+                json_data = filtered_data.to_json(orient='records', indent=2)
+                st.download_button(
+                    label="Download JSON",
+                    data=json_data,
+                    file_name=f"retail_data_filtered_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+                    mime="application/json"
+                )
+    
+    with col2:
+        st.subheader("📈 Generate Summary Report")
+        
+        if st.button("📋 Generate Report", key="generate_report"):
+            # Create summary report
+            report_data = {
+                'Analysis Date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'Total Records': len(filtered_data),
+                'Total Revenue': f"${filtered_data['total_price'].sum():,.2f}",
+                'Average Order Value': f"${filtered_data['total_price'].mean():.2f}",
+                'Product Categories': len(filtered_data['product_category_name'].unique()),
+                'Price Range': f"${filtered_data['total_price'].min():.2f} - ${filtered_data['total_price'].max():.2f}",
+                'Top Category': filtered_data.groupby('product_category_name')['total_price'].sum().idxmax(),
+                'Average Quantity': f"{filtered_data['qty'].mean():.1f}"
+            }
+            
+            report_df = pd.DataFrame(list(report_data.items()), columns=['Metric', 'Value'])
+            st.dataframe(report_df, use_container_width=True)
+            
+            # Download report
+            csv_report = report_df.to_csv(index=False)
+            st.download_button(
+                label="📥 Download Summary Report",
+                data=csv_report,
+                file_name=f"retail_analysis_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                mime="text/csv"
+            )
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with tab4:
+    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+    st.header("🔍 Advanced Data Explorer")
+    
+    # Data quality metrics
+    st.subheader("📊 Data Quality Metrics")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        missing_data = filtered_data.isnull().sum().sum()
+        st.metric("Missing Values", missing_data)
+    
+    with col2:
+        duplicates = filtered_data.duplicated().sum()
+        st.metric("Duplicate Records", duplicates)
+    
+    with col3:
+        data_types = len(filtered_data.dtypes.unique())
+        st.metric("Data Types", data_types)
+    
+    # Statistical Summary
+    st.subheader("📈 Statistical Summary")
+    numeric_cols = filtered_data.select_dtypes(include=[np.number]).columns
+    st.dataframe(filtered_data[numeric_cols].describe(), use_container_width=True)
+    
+    # Data Distribution
+    st.subheader("📊 Data Distribution Analysis")
+    selected_column = st.selectbox("Select Column for Distribution", numeric_cols)
+    
+    if selected_column:
+        fig_dist = px.histogram(
+            filtered_data, 
+            x=selected_column, 
+            nbins=30,
+            title=f"Distribution of {selected_column}"
+        )
+        fig_dist.update_layout(
+            title_font_size=16,
+            title_font_color='#333',
+            plot_bgcolor='rgba(255,255,255,0.9)',
+            paper_bgcolor='rgba(255,255,255,0.9)'
+        )
+        st.plotly_chart(fig_dist, use_container_width=True)
+    
+    # Outlier Detection
+    st.subheader("🚨 Outlier Detection")
+    if st.button("Detect Outliers", key="detect_outliers"):
+        outlier_cols = ['total_price', 'unit_price', 'qty']
+        outliers = {}
+        
+        for col in outlier_cols:
+            Q1 = filtered_data[col].quantile(0.25)
+            Q3 = filtered_data[col].quantile(0.75)
+            IQR = Q3 - Q1
+            lower_bound = Q1 - 1.5 * IQR
+            upper_bound = Q3 + 1.5 * IQR
+            outliers[col] = filtered_data[(filtered_data[col] < lower_bound) | (filtered_data[col] > upper_bound)]
+        
+        for col, outlier_data in outliers.items():
+            if len(outlier_data) > 0:
+                st.write(f"**{col}**: {len(outlier_data)} outliers detected")
+                st.dataframe(outlier_data[[col, 'product_category_name']].head(), use_container_width=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
