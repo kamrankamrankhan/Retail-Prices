@@ -62,7 +62,7 @@ class TestDataPreprocessingExtended(unittest.TestCase):
         """Test get_processed_data method."""
         from utils.data_preprocessing import DataPreprocessor
 
-        preprocessor = DataPreprocessing(self.data)
+        preprocessor = DataPreprocessor(self.data)
         result = preprocessor.get_processed_data()
 
         self.assertIsNotNone(result)
@@ -170,7 +170,11 @@ class TestAnalyticsEngineExtended(unittest.TestCase):
             'qty': np.random.randint(1, 50, 50),
             'total_price': np.random.uniform(50, 500, 50),
             'unit_price': np.random.uniform(10, 100, 50),
-            'product_score': np.random.uniform(3, 5, 50)
+            'product_score': np.random.uniform(3, 5, 50),
+            'comp_1': np.random.uniform(8, 95, 50),
+            'comp_2': np.random.uniform(8, 95, 50),
+            'comp_3': np.random.uniform(8, 95, 50),
+            'customers': np.random.randint(5, 50, 50)
         })
 
     def test_segment_products(self):
