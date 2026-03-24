@@ -67,7 +67,10 @@ class AnalyticsEngine:
         stats_df['skewness'] = self.data[columns].skew()
         stats_df['kurtosis'] = self.data[columns].kurtosis()
         stats_df['median'] = self.data[columns].median()
-        stats_df['mad'] = self.data[columns].mad()  # Median Absolute Deviation
+        # Calculate Median Absolute Deviation manually (mad() was deprecated in pandas 2.x)
+        stats_df['mad'] = self.data[columns].apply(
+            lambda col: np.median(np.abs(col - col.median()))
+        )
         stats_df['cv'] = stats_df['std'] / stats_df['mean'] * 100  # Coefficient of Variation
 
         return stats_df
