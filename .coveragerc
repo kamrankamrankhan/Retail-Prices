@@ -1,0 +1,23 @@
+[run]
+source = .
+omit =
+    utils/analysis_*.py
+    utils/helper_*.py
+    utils/util_*.py
+    utils/func_*.py
+    tests/*
+    venv/*
+    .venv/*
+    */site-packages/*
+    scripts/*
+    Retail/*
+    share/*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+    @abstractmethod
