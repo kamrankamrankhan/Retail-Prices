@@ -7,6 +7,11 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_squared_error
 import numpy as np
 from datetime import datetime, timedelta
+import os
+from importlib.util import find_spec
+
+# Optional dependency: statsmodels (enables Plotly 'ols' trendline)
+HAS_STATSMODELS = find_spec("statsmodels") is not None
 import io
 
 # Set page config for better appearance
@@ -210,8 +215,13 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Load data
-data = pd.read_csv('retail_price.csv')
+# Load data (robust path + error handling)
+try:
+	data_path = os.path.join(os.path.dirname(__file__), 'retail_price.csv')
+	data = pd.read_csv(data_path)
+except FileNotFoundError:
+	st.error("Data file 'retail_price.csv' not found. Please ensure it exists in the project root.")
+	st.stop()
 
 # Top navigation bar
 st.markdown("""
@@ -361,7 +371,11 @@ elif selected_chart == 'Box Plot':
 elif selected_chart == 'Scatter Plot':
     st.markdown('<div class="chart-container">', unsafe_allow_html=True)
     st.header('📈 Quantity vs Total Price with Trendline')
-    fig = px.scatter(filtered_data, x='qty', y='total_price', trendline='ols',
+	fig = px.scatter(
+		filtered_data,
+		x='qty',
+		y='total_price',
+		trendline=('ols' if HAS_STATSMODELS else None),
                     color_discrete_sequence=[selected_color])
     fig.update_layout(
         title_font_size=20,
