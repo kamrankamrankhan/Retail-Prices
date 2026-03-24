@@ -303,3 +303,85 @@ class ModelEvaluator:
         }
 
         return report
+
+    def benchmark_models(self, predictions_dict: Dict[str, np.ndarray],
+                         y_true: np.ndarray) -> pd.DataFrame:
+        """
+        Benchmark multiple models against each other.
+
+        Args:
+            predictions_dict: Dictionary mapping model names to their predictions
+            y_true: Actual values
+
+        Returns:
+            DataFrame with benchmark results for all models
+        """
+        results = {}
+        for model_name, y_pred in predictions_dict.items():
+            metrics = self.evaluate_model(y_true, y_pred, model_name)
+            results[model_name] = metrics
+
+        benchmark_df = pd.DataFrame(results).T
+        benchmark_df = benchmark_df.sort_values('r2', ascending=False)
+
+        self.comparison_data = benchmark_df
+        return benchmark_df
+
+    def statistical_significance_test(self, y_true: np.ndarray,
+                                      y_pred1: np.ndarray,
+                                      y_pred2: np.ndarray,
+                                      alpha: float = 0.05) -> Dict:
+        """
+        Perform statistical significance test between two models.
+
+        Tests whether the difference in prediction errors between two models
+        is statistically significant using a paired t-test.
+
+        Args:
+            y_true: Actual values
+            y_pred1: Predictions from model 1
+            y_pred2: Predictions from model 2
+            alpha: Significance level
+
+        Returns:
+            Dictionary with test results
+        """
+        from scipy import stats
+
+        # Calculate absolute errors for each model
+        errors1 = np.abs(y_true - y_pred1)
+        errors2 = np.abs(y_true - y_pred2)
+
+        # Paired t-test on absolute errors
+        t_statistic, p_value = stats.ttest_rel(errors1, errors2)
+
+        # Effect size (Cohen's d)
+        diff = errors1 - errors2
+        cohens_d = np.mean(diff) / np.std(diff, ddof=1)
+
+        # Determine significance
+        is_significant = p_value < alpha
+
+        # Which model is better?
+        mean_error1 = np.mean(errors1)
+        mean_error2 = np.mean(errors2)
+        better_model = 'Model 1' if mean_error1 < mean_error2 else 'Model 2'
+
+        result = {
+            't_statistic': t_statistic,
+            'p_value': p_value,
+            'is_significant': is_significant,
+            'alpha': alpha,
+            'cohens_d': cohens_d,
+            'better_model': better_model,
+            'mean_error_model1': mean_error1,
+            'mean_error_model2': mean_error2,
+            'error_improvement': abs(mean_error1 - mean_error2),
+            'interpretation': (
+                f"The difference is statistically significant (p={p_value:.4f})"
+                if is_significant else
+                f"The difference is not statistically significant (p={p_value:.4f})"
+            )
+        }
+
+        return result
