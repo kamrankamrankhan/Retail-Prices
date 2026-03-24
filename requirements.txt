@@ -1,7 +1,34 @@
+# Core dependencies
 streamlit>=1.28.0
 pandas>=1.5.0
+numpy>=1.24.0
 plotly>=5.15.0
 scikit-learn>=1.3.0
-numpy>=1.24.0
+
+# Visualization
 matplotlib>=3.7.0
 seaborn>=0.12.0
+
+# API
+fastapi>=0.100.0
+uvicorn>=0.23.0
+python-multipart>=0.0.6
+
+# Data processing
+openpyxl>=3.1.0
+joblib>=1.3.0
+
+# Scientific computing
+scipy>=1.11.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Utilities
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+
+# Optional: Advanced ML
+# xgboost>=2.0.0
+# lightgbm>=4.0.0
